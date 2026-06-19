@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="sw" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Familia ya Msarikie App (Mwanachama)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Jitsi Meet API SDK for Video Calls -->
+    <script src="https://meet.jit.si/external_api.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        msarikie: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            800: '#166534',
+                            850: '#155e2f',
+                            900: '#14532d',
+                            950: '#052e16',
+                        },
+                        amberCustom: {
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Inter', sans-serif;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="h-full text-slate-800 flex flex-col antialiased pb-16">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="bg-msarikie-950 text-white sticky top-0 z-40 shadow-md px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="bg-white/10 p-2 rounded-lg">
+                <i class="fa-solid fa-people-roof text-amberCustom-500 text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-base font-black leading-none tracking-tight">FAMILIA YA MSARIKIE</h1>
+                <p class="text-[9px] text-emerald-300 mt-0.5 uppercase tracking-wider font-semibold">Umoja na Ushirikiano</p>
+            </div>
+        </div>
+        <!-- Live Meeting Quick Badge -->
+        <div id="quick-meeting-badge" class="hidden">
+            <button onclick="switchTab('mikutano')" class="bg-red-600 text-white px-2 py-1 rounded-full text-[9px] font-black uppercase flex items-center space-x-1 animate-pulse shadow-md">
+                <span class="h-2 w-2 rounded-full bg-white block animate-ping"></span>
+                <span>Kikao Live</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN BODY CONTENT CONTAINER -->
+    <main class="flex-1 overflow-y-auto pb-12">
+        
+        <!-- Chairman Emergency Banner -->
+        <div id="chairman-banner" class="hidden bg-amber-50 border-b border-amber-200 p-3.5 flex items-start space-x-3">
+            <div class="bg-amber-100 p-2 rounded-full text-amber-800">
+                <i class="fa-solid fa-bullhorn text-sm"></i>
+            </div>
+            <div class="flex-1">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-[10px] font-black text-amber-900 tracking-wider uppercase">Tamko Kuu la Mwenyekiti</h3>
+                    <span id="banner-date" class="text-[9px] text-amber-700 font-bold">Leo</span>
+                </div>
+                <p id="banner-message" class="text-xs text-amber-800 mt-1 font-medium leading-relaxed"></p>
+            </div>
+        </div>
+
+        <!-- HERO STATS -->
+        <div id="hero-area" class="bg-gradient-to-b from-msarikie-950 to-msarikie-900 text-white px-5 pt-6 pb-12 rounded-b-3xl shadow-md">
+            <div class="max-w-md mx-auto">
+                <h2 class="text-xl font-extrabold">Habari za Familia</h2>
+                <p class="text-emerald-100 text-xs mt-1 leading-relaxed">
+                    Ukurasa rasmi wa kikundi chetu cha Familia ya Msarikie. Fuatilia dharura, ada, mikutano, na ripoti za matumizi ya fedha.
+                </p>
+                
+                <div class="grid grid-cols-3 gap-2.5 mt-5">
+                    <div class="bg-white/10 rounded-xl p-2.5 text-center border border-white/5 backdrop-blur-sm">
+                        <span class="block text-xl font-black text-amberCustom-500" id="stat-total-members">0</span>
+                        <span class="text-[9px] text-emerald-100 font-bold uppercase">Wanachama</span>
+                    </div>
+                    <div class="bg-white/10 rounded-xl p-2.5 text-center border border-white/5 backdrop-blur-sm">
+                        <span class="block text-xl font-black text-amberCustom-500" id="stat-active-funerals">0</span>
+                        <span class="text-[9px] text-emerald-100 font-bold uppercase">Misiba Sasa</span>
+                    </div>
+                    <div class="bg-white/10 rounded-xl p-2.5 text-center border border-white/5 backdrop-blur-sm">
+                        <span class="block text-xs font-black text-amberCustom-500 truncate" id="stat-total-funds">0/=</span>
+                        <span class="text-[9px] text-emerald-100 font-bold uppercase">Michango Sasa</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- APP CONTENT LAYOUT -->
+        <div class="max-w-md mx-auto px-4 -mt-6">
+            
+            <!-- ===================== TAB 1: MICHANGO & MISIBA ===================== -->
+            <div id="tab-content-michango" class="tab-pane space-y-5">
+                
+                <!-- SECTION: ACTIVE FUNERAL ALERTS -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mt-2">
+                    <div class="bg-red-50 px-4 py-3 border-b border-red-100 flex items-center justify-between">
+                        <div class="flex items-center space-x-2 text-red-700">
+                            <i class="fa-solid fa-circle-exclamation text-base animate-pulse"></i>
+                            <h2 class="font-extrabold text-xs tracking-wide uppercase">Dharura ya Msiba Inayoendelea</h2>
+                        </div>
+                        <span class="bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded-full font-black uppercase tracking-wider">Msiba</span>
+                    </div>
+                    <div id="funeral-container" class="p-4">
+                        <div class="text-center py-6 text-slate-500 text-xs">
+                            <i class="fa-solid fa-circle-info text-slate-300 text-3xl mb-2"></i>
+                            <p>Kwa sasa hakuna dharura yoyote ya msiba iliyotangazwa.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION: FINANCIAL VIWANGO OVERVIEW -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 grid grid-cols-2 gap-3">
+                    <div class="bg-emerald-50/50 p-3 rounded-xl border border-emerald-100">
+                        <span class="block text-[8px] text-emerald-800 font-black uppercase">Ada ya Kujiandikisha</span>
+                        <span id="label-reg-amount" class="text-xs font-black text-emerald-950">TZS 0</span>
+                    </div>
+                    <div class="bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+                        <span class="block text-[8px] text-blue-800 font-black uppercase">Ada ya Kila Mwezi</span>
+                        <span id="label-monthly-amount" class="text-xs font-black text-blue-950">TZS 10,000</span>
+                    </div>
+                </div>
+
+                <!-- SECTION: MICHANGO YA MSIBA TRACKER -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center space-x-2 text-slate-800">
+                            <i class="fa-solid fa-receipt text-msarikie-600 text-lg"></i>
+                            <h2 class="font-extrabold text-xs tracking-wide uppercase">Michango ya Msiba Huu</h2>
+                        </div>
+                        <button onclick="openPaymentDetailsModal()" class="text-xs text-msarikie-600 font-extrabold hover:underline flex items-center space-x-1">
+                            <i class="fa-solid fa-wallet"></i>
+                            <span>Namba za Malipo</span>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="bg-emerald-50 rounded-xl p-3 flex justify-between items-center mb-3 border border-emerald-100">
+                            <div>
+                                <p class="text-[9px] text-emerald-800 uppercase font-black tracking-wider">Zilizokusanywa Sasa</p>
+                                <span class="text-base font-black text-emerald-950" id="contrib-total-collected">TZS 0/=</span>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[9px] text-slate-500 uppercase font-bold">Lengo</p>
+                                <span class="text-xs font-bold text-slate-700" id="contrib-target">TZS 0</span>
+                            </div>
+                        </div>
+                        <div class="relative mb-3">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                                <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                            </span>
+                            <input type="text" id="contrib-search-input" onkeyup="filterContributionList()" placeholder="Tafuta jina la mwanachama..." class="w-full bg-slate-50 border border-slate-200 text-xs pl-8 pr-3 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-msarikie-600">
+                        </div>
+                        <div class="max-h-56 overflow-y-auto divide-y divide-slate-100 pr-1 hide-scrollbar" id="contrib-list-container">
+                            <p class="text-center text-xs py-4 text-slate-400">Kupakia orodha ya michango ya msiba...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION: MFUKO WA KILA MWEZI & USAJILI -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center space-x-2 text-slate-800">
+                            <i class="fa-solid fa-calendar-check text-msarikie-600 text-lg"></i>
+                            <h2 class="font-extrabold text-xs tracking-wide uppercase">Mfuko &amp; Usajili wa Wanachama</h2>
+                        </div>
+                        <div class="flex items-center space-x-1.5">
+                            <select id="monthly-picker" onchange="loadMonthlyFundData()" class="bg-slate-100 border-none text-[11px] font-bold p-1 rounded focus:outline-none text-slate-700">
+                                <option value="Kujiandikisha">Kujiandikisha (Ada)</option>
+                                <option value="Januari-2026">Jan 2026</option>
+                                <option value="Februari-2026">Feb 2026</option>
+                                <option value="Machi-2026">Mar 2026</option>
+                                <option value="Aprili-2026">Apr 2026</option>
+                                <option value="Mei-2026">Mei 2026</option>
+                                <option value="Juni-2026" selected>Jun 2026</option>
+                                <option value="Julai-2026">Jul 2026</option>
+                                <option value="Agosti-2026">Ago 2026</option>
+                                <option value="Septemba-2026">Sep 2026</option>
+                                <option value="Oktoba-2026">Okt 2026</option>
+                                <option value="Novemba-2026">Nov 2026</option>
+                                <option value="Desemba-2026">Des 2026</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="bg-blue-50/60 rounded-xl p-3 flex justify-between items-center mb-3 border border-blue-100/50">
+                            <div>
+                                <p class="text-[9px] text-blue-800 uppercase font-black tracking-wider">Hali ya Waliochangia</p>
+                                <span class="text-sm font-black text-blue-950" id="monthly-stats-count">0 / 0</span>
+                            </div>
+                        </div>
+                        <div class="max-h-56 overflow-y-auto divide-y divide-slate-100 pr-1 hide-scrollbar" id="monthly-list-container">
+                            <p class="text-center text-xs py-4 text-slate-400">Pakia orodha ya hali ya malipo...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION: MINUTES OF MEETINGS (VIKAO) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="bg-slate-50 px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+                        <h3 class="font-extrabold text-xs text-slate-700 uppercase tracking-wider"><i class="fa-solid fa-scroll mr-1 text-slate-500"></i> Muhtasari wa Vikao vilivyopita</h3>
+                    </div>
+                    <div class="p-4 space-y-3 max-h-56 overflow-y-auto hide-scrollbar" id="minutes-archive-container">
+                        <p class="text-center text-xs text-slate-400 italic">Inapakia kumbukumbu za vikao...</p>
+                    </div>
+                </div>
+
+                <!-- SECTION: RIPOTI KUU YA FEDHA (MAPATO NA MATUMIZI) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="bg-slate-900 text-white px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-chart-line text-amber-500 text-sm"></i>
+                            <h3 class="font-extrabold text-xs uppercase tracking-wider">Daftari Kuu la Matumizi &amp; Mapato</h3>
+                        </div>
+                    </div>
+                    <div class="p-4 space-y-4">
+                        <div class="grid grid-cols-3 gap-2">
+                            <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-2 text-center">
+                                <span class="block text-[8px] text-emerald-800 uppercase font-black">Mapato yote</span>
+                                <span id="ledger-total-income" class="text-xs font-black text-emerald-950">TZS 0</span>
+                            </div>
+                            <div class="bg-red-50 border border-red-100 rounded-xl p-2 text-center">
+                                <span class="block text-[8px] text-red-800 uppercase font-black">Matumizi yote</span>
+                                <span id="ledger-total-expense" class="text-xs font-black text-red-950">TZS 0</span>
+                            </div>
+                            <div class="bg-blue-50 border border-blue-100 rounded-xl p-2 text-center">
+                                <span class="block text-[8px] text-blue-800 uppercase font-black">Salio la Kikundi</span>
+                                <span id="ledger-total-balance" class="text-xs font-black text-blue-950">TZS 0</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 max-h-60 overflow-y-auto hide-scrollbar divide-y divide-slate-100" id="finance-ledger-list">
+                            <p class="text-center text-xs text-slate-400 py-4 italic">Inapakia taarifa za fedha...</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ===================== TAB 2: SECURE COMMUNICATION CHATS ===================== -->
+            <div id="tab-content-chat" class="tab-pane hidden space-y-4">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mt-2 flex flex-col h-[520px]">
+                    <div class="bg-msarikie-900 px-4 py-3 text-white flex items-center justify-between shadow-sm">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-comments text-amberCustom-500"></i>
+                            <div>
+                                <h3 class="font-extrabold text-xs uppercase" id="chat-header-title">Chat ya Familia</h3>
+                                <p class="text-[9px] text-emerald-300" id="chat-header-desc">Wanachama Waliosajiliwa Tu</p>
+                            </div>
+                        </div>
+                        <button id="chat-logout-btn" onclick="exitChatVerification()" class="hidden text-[10px] bg-white/15 px-2 py-0.5 rounded hover:bg-white/20">Ondoka</button>
+                    </div>
+
+                    <!-- Verify Phone Number Gate -->
+                    <div id="chat-verify-gate" class="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-4">
+                        <div class="bg-slate-100 p-4 rounded-full text-msarikie-800">
+                            <i class="fa-solid fa-phone-lock text-3xl"></i>
+                        </div>
+                        <div class="space-y-1 max-w-xs">
+                            <h4 class="text-xs font-black uppercase text-slate-800">Thibitisha Namba yako</h4>
+                            <p class="text-[11px] text-slate-500 leading-relaxed">Ili kutuma au kusoma ujumbe kwenye chat ya kikundi au private, lazima uweke namba ya simu iliyosajiliwa.</p>
+                        </div>
+                        <div class="w-full max-w-xs space-y-2">
+                            <input type="tel" id="chat-verify-phone" placeholder="Mfano: 0712345678" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-center focus:outline-none focus:ring-1 focus:ring-msarikie-600">
+                            <button onclick="processChatVerification()" class="w-full bg-msarikie-850 hover:bg-msarikie-900 text-white text-xs py-2.5 rounded-xl font-bold transition">Fungua Chat</button>
+                        </div>
+                    </div>
+
+                    <!-- Chat Interface -->
+                    <div id="chat-active-area" class="hidden flex-1 flex flex-col overflow-hidden bg-slate-50">
+                        <!-- Chat selector tabs -->
+                        <div class="grid grid-cols-2 text-center text-xs font-bold border-b border-slate-200 bg-white">
+                            <button onclick="setChatMode('group')" id="chat-tab-group" class="py-2.5 border-b-2 border-msarikie-800 text-msarikie-900">Chat Kuu</button>
+                            <button onclick="setChatMode('private')" id="chat-tab-private" class="py-2.5 text-slate-500">Messeji za Siri (Private)</button>
+                        </div>
+
+                        <!-- Private list select (if private chat active) -->
+                        <div id="chat-private-selector-box" class="hidden p-2 bg-white border-b border-slate-100">
+                            <label class="block text-[9px] text-slate-400 font-bold uppercase mb-1">Chagua Mwanachama wa Kuchat Nae:</label>
+                            <select id="chat-private-receiver-picker" onchange="startPrivateChatWithMember()" class="w-full bg-slate-50 border border-slate-200 rounded p-1.5 text-xs font-bold text-slate-700 focus:outline-none">
+                                <option value="">-- Chagua Mwanachama --</option>
+                            </select>
+                        </div>
+
+                        <div id="chat-messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 flex flex-col hide-scrollbar">
+                            <!-- Messages generated dynamically -->
+                        </div>
+                        
+                        <div class="p-3 bg-white border-t border-slate-100 flex items-center space-x-2">
+                            <input type="text" id="chat-message-input" onkeydown="handleChatSubmit(event)" placeholder="Andika ujumbe wako..." class="flex-1 bg-slate-50 border border-slate-200 rounded-full px-4 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-msarikie-600">
+                            <button onclick="sendChatMessage()" class="bg-msarikie-800 hover:bg-msarikie-900 text-white p-2.5 h-9 w-9 rounded-full flex items-center justify-center transition shadow-md">
+                                <i class="fa-solid fa-paper-plane text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== TAB 3: DAFTARI ===================== -->
+            <div id="tab-content-daftari" class="tab-pane hidden space-y-4">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mt-2">
+                    <div class="px-4 py-3.5 border-b border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center space-x-2 text-slate-800">
+                            <i class="fa-solid fa-address-book text-msarikie-600 text-lg"></i>
+                            <h2 class="font-extrabold text-xs tracking-wide uppercase">Daftari la Familia</h2>
+                        </div>
+                        <span id="directory-count" class="bg-slate-100 text-slate-600 text-xs px-2.5 py-0.5 rounded-full font-bold">0</span>
+                    </div>
+                    <div class="p-4">
+                        <div class="relative mb-3">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                                <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                            </span>
+                            <input type="text" id="dir-search-input" onkeyup="filterDirectoryList()" placeholder="Tafuta mwanachama..." class="w-full bg-slate-50 border border-slate-200 text-xs pl-8 pr-3 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-msarikie-600">
+                        </div>
+                        <div class="max-h-96 overflow-y-auto divide-y divide-slate-100 pr-1 hide-scrollbar" id="directory-list-container">
+                            <p class="text-center text-xs py-4 text-slate-400">Inapakia daftari...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== TAB 4: KATIBA YA FAMILIA ===================== -->
+            <div id="tab-content-katiba" class="tab-pane hidden space-y-4">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mt-2">
+                    <div class="px-4 py-3.5 border-b border-slate-100 flex items-center justify-between bg-msarikie-50">
+                        <div class="flex items-center space-x-2 text-slate-800">
+                            <i class="fa-solid fa-gavel text-msarikie-600 text-lg"></i>
+                            <h2 class="font-extrabold text-xs tracking-wide uppercase">Katiba na Masharti</h2>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <div class="text-xs text-slate-700 whitespace-pre-wrap leading-relaxed max-h-[450px] overflow-y-auto hide-scrollbar" id="constitution-content">
+                            <div class="text-center py-6 text-slate-400 italic">
+                                <i class="fa-solid fa-scroll text-slate-200 text-4xl mb-2 block"></i>
+                                Mwenyekiti bado hajaweka katiba ya kikundi.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== TAB 5: AI BOT INAYOJIFUNZA (GEMINI) ===================== -->
+            <div id="tab-content-ai-bot" class="tab-pane hidden space-y-4">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mt-2 flex flex-col h-[520px]">
+                    <div class="bg-gradient-to-r from-amber-600 to-amber-700 px-4 py-3 text-white flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-robot text-lg animate-pulse"></i>
+                            <div>
+                                <h3 class="font-extrabold text-xs uppercase">AI Msaidizi wa Msarikie</h3>
+                                <p class="text-[9px] text-amber-100">Anajifunza katiba, vikao, na michango</p>
+                            </div>
+                        </div>
+                        <button onclick="clearAiChat()" class="text-[10px] bg-white/10 px-2 py-0.5 rounded hover:bg-white/20"><i class="fa-solid fa-rotate-right"></i> Safisha</button>
+                    </div>
+
+                    <div id="ai-messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 flex flex-col hide-scrollbar bg-slate-50">
+                        <!-- AI conversations show up here -->
+                        <div class="bg-amber-50 border border-amber-100 p-3 rounded-2xl text-xs text-slate-800 leading-relaxed max-w-[90%] self-start shadow-sm">
+                            <p class="font-bold text-amber-900 mb-1"><i class="fa-solid fa-robot"></i> AI Msaidizi:</p>
+                            Hujambo! Mimi ni **Msaidizi wa Msarikie (AI)**. Nimesoma katiba yenu yote, taarifa za vikao vyote vilivyopita, matangazo ya Mwenyekiti na viwango vya sasa vya michango. Niulize chochote kuhusu kikundi chetu nitakujibu kwa usahihi!
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-white border-t border-slate-100 flex items-center space-x-2">
+                        <input type="text" id="ai-chat-input" onkeydown="handleAiSubmit(event)" placeholder="Mfano: Ada ya kujiandikisha ni kiasi gani?" class="flex-1 bg-slate-50 border border-slate-200 rounded-full px-4 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500">
+                        <button onclick="sendAiMessage()" id="ai-send-btn" class="bg-amber-600 hover:bg-amber-700 text-white p-2.5 h-9 w-9 rounded-full flex items-center justify-center transition shadow-md">
+                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== TAB 6: PROFILE YA MWANACHAMA ===================== -->
+            <div id="tab-content-profile" class="tab-pane hidden space-y-4">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mt-2">
+                    <div class="bg-gradient-to-r from-msarikie-900 to-msarikie-800 px-4 py-4 text-white text-center">
+                        <h3 class="font-black text-xs uppercase tracking-wider">Wasifu wa Mwanachama</h3>
+                        <p class="text-[9px] text-emerald-200">Taarifa zako na ripoti ya malipo</p>
+                    </div>
+
+                    <!-- Profile Login / Setup PIN Gate -->
+                    <div id="profile-gate" class="p-6 space-y-4 text-center">
+                        <div class="bg-slate-100 h-14 w-14 rounded-full flex items-center justify-center mx-auto text-slate-600">
+                            <i class="fa-solid fa-user-shield text-2xl"></i>
+                        </div>
+                        <p class="text-[11px] text-slate-500 leading-relaxed max-w-xs mx-auto">
+                            Ingiza namba yako ya simu na PIN ili kufungua wasifu wako salama. Kama hauna PIN bado, mfumo utakuruhusu kuisajili sasa hivi.
+                        </p>
+                        <div class="space-y-2.5 max-w-xs mx-auto text-left">
+                            <div>
+                                <label class="block text-[9px] text-slate-400 font-bold uppercase mb-0.5">Namba ya Simu</label>
+                                <input type="tel" id="profile-login-phone" placeholder="Mfano: 0712345678" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-center focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] text-slate-400 font-bold uppercase mb-0.5">PIN yako ya Siri (Namba 4)</label>
+                                <input type="password" id="profile-login-pin" pattern="[0-9]*" inputmode="numeric" placeholder="Namba 4 za siri" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-center font-bold tracking-widest focus:outline-none">
+                            </div>
+                            <button onclick="processProfileLogin()" class="w-full bg-msarikie-850 hover:bg-msarikie-900 text-white text-xs py-2.5 rounded-xl font-bold transition">Fungua Wasifu</button>
+                        </div>
+                    </div>
+
+                    <!-- Profile Active Details Area -->
+                    <div id="profile-details-area" class="hidden p-5 space-y-5">
+                        <!-- Profile Image & Meta -->
+                        <div class="flex flex-col items-center space-y-3 pb-4 border-b border-slate-100">
+                            <div class="relative">
+                                <div id="profile-image-container" class="h-20 w-20 rounded-full border-4 border-emerald-50 bg-slate-100 flex items-center justify-center overflow-hidden cursor-pointer shadow-inner">
+                                    <i class="fa-solid fa-user text-3xl text-slate-400" id="profile-image-fallback"></i>
+                                    <img id="profile-image-display" class="hidden h-full w-full object-cover">
+                                </div>
+                                <button onclick="triggerProfileImageUpload()" class="absolute bottom-0 right-0 bg-emerald-600 text-white rounded-full p-1.5 text-[9px] hover:bg-emerald-700 shadow shadow-slate-300">
+                                    <i class="fa-solid fa-camera"></i>
+                                </button>
+                                <input type="file" id="profile-image-file-input" accept="image/*" class="hidden" onchange="handleProfileImageSelect(event)">
+                            </div>
+                            <div class="text-center">
+                                <h4 id="profile-user-name" class="font-extrabold text-sm text-slate-900">Mwanachama</h4>
+                                <p id="profile-user-phone" class="text-[10px] text-slate-500 font-semibold mt-0.5">N/A</p>
+                            </div>
+                        </div>
+
+                        <!-- Private PIN Change -->
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                            <h4 class="text-[9px] text-slate-600 uppercase font-black tracking-wider"><i class="fa-solid fa-key mr-1"></i> Badilisha PIN Yako ya Wasifu</h4>
+                            <div class="flex space-x-2">
+                                <input type="password" id="profile-new-pin-input" pattern="[0-9]*" placeholder="PIN Mpya (Namba 4)" class="flex-1 border border-slate-200 rounded p-1.5 text-xs font-bold text-center tracking-widest">
+                                <button onclick="updateMemberPersonalPIN()" class="bg-slate-800 text-white text-xs px-3 rounded font-bold">Sasisha</button>
+                            </div>
+                        </div>
+
+                        <!-- Personal Payments Status -->
+                        <div class="space-y-3">
+                            <h4 class="text-[10px] text-slate-700 font-black uppercase tracking-wider"><i class="fa-solid fa-chart-pie mr-1"></i> Hali ya Malipo Yako Yote</h4>
+                            <div class="space-y-2 max-h-56 overflow-y-auto pr-1 hide-scrollbar" id="profile-payments-status-list">
+                                <!-- Status generated dynamically -->
+                            </div>
+                        </div>
+
+                        <button onclick="logoutProfile()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs py-2 rounded-xl font-bold transition">Toka Kwenye Wasifu</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== TAB 7: LIVE MEETING (VIKAO VYA VIDEO) ===================== -->
+            <div id="tab-content-mikutano" class="tab-pane hidden space-y-4">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mt-2">
+                    <div class="bg-red-600 text-white px-4 py-3 flex justify-between items-center">
+                        <div class="flex items-center space-x-2">
+                            <span class="h-2 w-2 rounded-full bg-white block animate-ping"></span>
+                            <h3 class="font-extrabold text-xs uppercase tracking-wide">Mikutano na Vikao vya Live (Video Call)</h3>
+                        </div>
+                    </div>
+                    <div class="p-4 space-y-4">
+                        <div id="no-active-meeting-box" class="text-center py-8 text-slate-500 space-y-3">
+                            <i class="fa-solid fa-video-slash text-slate-300 text-4xl"></i>
+                            <p class="text-xs">Hakuna kikao chochote cha Live kinachoendelea kwa sasa.</p>
+                        </div>
+
+                        <div id="active-meeting-box" class="hidden bg-red-50 border border-red-200 rounded-2xl p-4 space-y-3">
+                            <div>
+                                <span class="bg-red-600 text-white text-[9px] px-2 py-0.5 rounded font-bold uppercase">Kikao Kinaendelea</span>
+                                <h4 id="meeting-subject-display" class="font-extrabold text-slate-900 text-sm mt-1">Agenda ya Kikao</h4>
+                                <p class="text-[11px] text-slate-500 mt-0.5">Viongozi na wanachama wote wanajiunga hapa live kwa video na sauti.</p>
+                            </div>
+
+                            <!-- Input for custom display name in meeting -->
+                            <div class="space-y-1">
+                                <label class="block text-[9px] font-bold text-slate-400 uppercase">Jina lako la kuonyesha kwenye kikao</label>
+                                <input type="text" id="meeting-display-name" placeholder="Mfano: Michael Kavishe" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-red-500">
+                            </div>
+
+                            <button onclick="joinActiveLiveMeeting()" class="w-full bg-red-600 hover:bg-red-700 text-white text-xs py-3 rounded-xl font-bold uppercase transition flex items-center justify-center space-x-2 shadow-md">
+                                <i class="fa-solid fa-video"></i>
+                                <span>Jiunge na Kikao cha Video</span>
+                            </button>
+                        </div>
+
+                        <!-- Jitsi Meet iframe wrapper -->
+                        <div id="jitsi-iframe-container" class="hidden border border-slate-200 rounded-2xl overflow-hidden shadow-inner bg-slate-950 flex flex-col h-[500px]">
+                            <div class="bg-slate-900 text-white p-3 flex justify-between items-center text-xs">
+                                <span id="jitsi-active-title" class="font-bold">Kikao cha Familia</span>
+                                <button onclick="hangupCurrentMeeting()" class="bg-red-600 px-3 py-1 rounded font-bold uppercase text-[10px]">Ondoka</button>
+                            </div>
+                            <div id="jitsi-meet-player" class="flex-1 w-full bg-slate-900"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ====== BOTTOM TAB BAR FOR MOBILE VIEW ====== -->
+    <nav class="bg-white border-t border-slate-200 fixed bottom-0 left-0 right-0 z-30 flex justify-around py-2.5 text-[9px] font-bold text-slate-500 shadow-lg">
+        <button onclick="switchTab('michango')" id="nav-tab-michango" class="flex flex-col items-center space-y-1 text-msarikie-600">
+            <i class="fa-solid fa-house-chimney-crack text-base"></i>
+            <span>Dharura &amp; Fedha</span>
+        </button>
+        <button onclick="switchTab('mikutano')" id="nav-tab-mikutano" class="flex flex-col items-center space-y-1">
+            <i class="fa-solid fa-video text-base"></i>
+            <span>Mikutano Live</span>
+        </button>
+        <button onclick="switchTab('chat')" id="nav-tab-chat" class="flex flex-col items-center space-y-1">
+            <i class="fa-solid fa-comments text-base"></i>
+            <span>Mawasiliano</span>
+        </button>
+        <button onclick="switchTab('daftari')" id="nav-tab-daftari" class="flex flex-col items-center space-y-1">
+            <i class="fa-solid fa-address-book text-base"></i>
+            <span>Daftari</span>
+        </button>
+        <button onclick="switchTab('profile')" id="nav-tab-profile" class="flex flex-col items-center space-y-1">
+            <i class="fa-solid fa-circle-user text-base"></i>
+            <span>Mimi</span>
+        </button>
+    </nav>
+
+    <!-- ====== APPLICATION MODALS ====== -->
+
+    <!-- 1. PAYMENT DETAILS MODAL -->
+    <div id="modal-payments" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl border border-slate-100">
+            <div class="bg-msarikie-900 text-white px-5 py-4 flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-wallet text-amberCustom-500"></i>
+                    <h3 class="font-bold text-xs uppercase tracking-wide">Namba za Malipo</h3>
+                </div>
+                <button onclick="closePaymentDetailsModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-5 space-y-3.5">
+                <p class="text-[11px] text-slate-500 text-center leading-relaxed">Tuma michango yako hapa na umjulishe Mweka Hazina ili athibitishe kwenye App ya Viongozi.</p>
+                <div class="space-y-2.5">
+                    <div class="bg-rose-50 border border-rose-100 p-3 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <span class="block text-[9px] text-rose-800 uppercase font-black">M-PESA (Vodacom)</span>
+                            <span id="display-pay-mpesa" class="text-xs font-bold text-slate-800">Inapakia...</span>
+                        </div>
+                        <button onclick="copyPaymentNumber('display-pay-mpesa')" class="bg-rose-100 text-rose-800 hover:bg-rose-200 p-2 rounded-xl text-xs"><i class="fa-regular fa-copy"></i></button>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-100 p-3 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <span class="block text-[9px] text-amber-800 uppercase font-black">Tigo Pesa</span>
+                            <span id="display-pay-tigopesa" class="text-xs font-bold text-slate-800">Inapakia...</span>
+                        </div>
+                        <button onclick="copyPaymentNumber('display-pay-tigopesa')" class="bg-amber-100 text-amber-800 hover:bg-amber-200 p-2 rounded-xl text-xs"><i class="fa-regular fa-copy"></i></button>
+                    </div>
+                    <div class="bg-red-50 border border-red-100 p-3 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <span class="block text-[9px] text-red-800 uppercase font-black">Airtel Money</span>
+                            <span id="display-pay-airtelmoney" class="text-xs font-bold text-slate-800">Inapakia...</span>
+                        </div>
+                        <button onclick="copyPaymentNumber('display-pay-airtelmoney')" class="bg-red-100 text-red-800 hover:bg-red-200 p-2 rounded-xl text-xs"><i class="fa-regular fa-copy"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. DIGITAL RECEIPT MODAL -->
+    <div id="modal-receipt" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl w-full max-w-xs overflow-hidden shadow-2xl border-4 border-emerald-50 relative animate-fade-in">
+            <div class="bg-emerald-800 text-white p-4 text-center">
+                <i class="fa-solid fa-circle-check text-4xl text-emerald-300"></i>
+                <h4 class="font-black text-xs uppercase tracking-widest mt-2">Familia ya Msarikie</h4>
+                <p class="text-[9px] text-emerald-200 uppercase tracking-wider font-semibold">STAKABADHI YA KIKUNDI</p>
+            </div>
+            
+            <div class="p-5 space-y-4 text-xs">
+                <div class="text-center py-2 bg-slate-50 border border-slate-100 rounded-xl">
+                    <p class="text-[9px] text-slate-400 uppercase font-bold">Kiwango Kilicholipwa</p>
+                    <p id="receipt-amount" class="text-lg font-black text-slate-800 mt-0.5">TZS 0/=</p>
+                </div>
+                
+                <div class="space-y-2.5 divide-y divide-slate-100">
+                    <div class="flex justify-between pt-1">
+                        <span class="text-slate-400 font-semibold">Mlipaji:</span>
+                        <span id="receipt-name" class="font-bold text-slate-800 text-right">Mwanachama</span>
+                    </div>
+                    <div class="flex justify-between pt-2">
+                        <span class="text-slate-400 font-semibold">Aina ya Malipo:</span>
+                        <span id="receipt-type" class="font-bold text-slate-800 text-right">Mfuko wa Mwezi</span>
+                    </div>
+                    <div class="flex justify-between pt-2">
+                        <span class="text-slate-400 font-semibold">Hali ya Malipo:</span>
+                        <span class="bg-emerald-100 text-emerald-800 text-[9px] px-2 py-0.5 rounded font-black tracking-wider">KUTHIBITISHWA</span>
+                    </div>
+                    <div class="flex justify-between pt-2">
+                        <span class="text-slate-400 font-semibold">Muamala ID:</span>
+                        <span id="receipt-tx-id" class="font-mono text-[9px] font-bold text-slate-500 uppercase">TX-000000</span>
+                    </div>
+                </div>
+                
+                <p class="text-[8px] text-slate-400 text-center italic mt-2">Asante kwa kutimiza wajibu wako kwenye Kikundi chetu cha Familia.</p>
+                
+                <button onclick="closeReceiptModal()" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-[11px] font-bold py-2.5 rounded-xl transition">Funga Stakabadhi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. SYSTEM TOASTS -->
+    <div id="toast-message" class="hidden fixed bottom-16 left-1/2 transform -translate-x-1/2 z-50 bg-slate-900 text-white text-[11px] px-5 py-3 rounded-full shadow-lg font-bold items-center space-x-2 animate-bounce">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toast-text">Ujumbe umefutwa!</span>
+    </div>
+
+    <!-- FIREBASE MODULE CODES -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, query, addDoc, deleteDoc, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = 'kavishe-app'; 
+        const firebaseConfig = {
+            apiKey: "AIzaSyBWaUOQd3H9M_N0PkZEdWzuoPLIZs4gUTA",
+            authDomain: "kavishe-app.firebaseapp.com",
+            projectId: "kavishe-app",
+            storageBucket: "kavishe-app.firebasestorage.app",
+            messagingSenderId: "80345785749",
+            appId: "1:80345785749:web:92998ef8bd9556ec77429c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // State
+        window.appState = {
+            currentMonthSelected: 'Juni-2026',
+            chatMode: 'group', // 'group' or 'private'
+            privateReceiver: '', // receiver phone number
+            members: [],
+            funerals: [],
+            minutes: [],
+            finances: { income: [], expenses: [] },
+            allPrivateChats: [], // in-memory filter
+            currentMeeting: { active: false, roomName: '', subject: '' },
+            jitsiAPI: null,
+            paymentDetails: {
+                mpesa: "Bado haijawekwa",
+                tigopesa: "Bado haijawekwa",
+                airtelmoney: "Bado haijawekwa"
+            },
+            config: {
+                registrationFee: "0",
+                monthlyFee: "10000",
+                constitution: ""
+            },
+            loggedInProfileMember: null 
+        };
+
+        async function startDataListeners() {
+            // Config & Payment Info & Constitution
+            const configDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'config');
+            onSnapshot(configDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    window.appState.config = data;
+                    if (data.paymentDetails) {
+                        window.appState.paymentDetails = data.paymentDetails;
+                        updatePaymentDetailsDisplay();
+                    }
+                    if (data.constitution) {
+                        document.getElementById('constitution-content').innerText = data.constitution;
+                    } else {
+                        document.getElementById('constitution-content').innerHTML = `<div class="text-center py-6 text-slate-400 italic"><i class="fa-solid fa-scroll text-slate-200 text-4xl mb-2 block"></i>Mwenyekiti bado hajaweka katiba ya kikundi.</div>`;
+                    }
+                    document.getElementById('label-reg-amount').innerText = `TZS ${parseInt(data.registrationFee || 0).toLocaleString()}/=`;
+                    document.getElementById('label-monthly-amount').innerText = `TZS ${parseInt(data.monthlyFee || 10000).toLocaleString()}/=`;
+                }
+            });
+
+            // Finances Ledger
+            const financesDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'finances', 'ledger');
+            onSnapshot(financesDocRef, (docSnap) => {
+                const ledgerListEl = document.getElementById('finance-ledger-list');
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    window.appState.finances = data;
+                    const incomeList = data.income || [];
+                    const expensesList = data.expenses || [];
+
+                    let totIncome = 0;
+                    let totExpense = 0;
+
+                    incomeList.forEach(i => totIncome += parseInt(i.amount || 0));
+                    expensesList.forEach(e => totExpense += parseInt(e.amount || 0));
+
+                    const balance = totIncome - totExpense;
+
+                    document.getElementById('ledger-total-income').innerText = `TZS ${totIncome.toLocaleString()}/=`;
+                    document.getElementById('ledger-total-expense').innerText = `TZS ${totExpense.toLocaleString()}/=`;
+                    document.getElementById('ledger-total-balance').innerText = `TZS ${balance.toLocaleString()}/=`;
+
+                    // Merge and sort lists for timeline view
+                    const combined = [
+                        ...incomeList.map(item => ({ ...item, type: 'income' })),
+                        ...expensesList.map(item => ({ ...item, type: 'expense' }))
+                    ].sort((a,b) => new Date(b.date) - new Date(a.date));
+
+                    if (combined.length === 0) {
+                        ledgerListEl.innerHTML = `<p class="text-center text-xs text-slate-400 py-4 italic">Hakuna miamala yoyote ya fedha iliyoorodheshwa.</p>`;
+                    } else {
+                        ledgerListEl.innerHTML = combined.map(item => `
+                            <div class="py-2.5 flex justify-between items-center text-xs">
+                                <div>
+                                    <span class="block font-bold text-slate-800">${item.title}</span>
+                                    <span class="block text-[9px] text-slate-400">${item.date}</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="font-black ${item.type === 'income' ? 'text-emerald-700' : 'text-red-600'}">
+                                        ${item.type === 'income' ? '+' : '-'} TZS ${parseInt(item.amount).toLocaleString()}/=
+                                    </span>
+                                    <button onclick="openReceiptModal('${item.title}', '${item.type === 'income' ? 'Mapato ya Kikundi' : 'Matumizi ya Kikundi'}', 'TZS ${parseInt(item.amount).toLocaleString()}/=')" class="block text-[8px] text-slate-400 hover:underline">Stakabadhi</button>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                } else {
+                    ledgerListEl.innerHTML = `<p class="text-center text-xs text-slate-400 py-4 italic">Hakuna miamala yoyote ya fedha iliyoorodheshwa.</p>`;
+                }
+            });
+
+            // Live Meetings Listener
+            const meetingsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'meetings', 'current');
+            onSnapshot(meetingsDocRef, (docSnap) => {
+                const meetingBadge = document.getElementById('quick-meeting-badge');
+                const noMeetingBox = document.getElementById('no-active-meeting-box');
+                const activeMeetingBox = document.getElementById('active-meeting-box');
+                const displaySubject = document.getElementById('meeting-subject-display');
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    window.appState.currentMeeting = data;
+                    if (data.active) {
+                        meetingBadge.classList.remove('hidden');
+                        meetingBadge.classList.add('block');
+                        noMeetingBox.classList.add('hidden');
+                        activeMeetingBox.classList.remove('hidden');
+                        displaySubject.innerText = `Agenda: ${data.subject}`;
+                    } else {
+                        meetingBadge.classList.add('hidden');
+                        meetingBadge.classList.remove('block');
+                        noMeetingBox.classList.remove('hidden');
+                        activeMeetingBox.classList.add('hidden');
+                        hangupCurrentMeeting();
+                    }
+                } else {
+                    meetingBadge.classList.add('hidden');
+                    meetingBadge.classList.remove('block');
+                    noMeetingBox.classList.remove('hidden');
+                    activeMeetingBox.classList.add('hidden');
+                }
+            });
+
+            // Announcements
+            const announceDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'announcements', 'chairman');
+            onSnapshot(announceDocRef, (docSnap) => {
+                const banner = document.getElementById('chairman-banner');
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.text && data.text.trim() !== "") {
+                        document.getElementById('banner-message').innerText = data.text;
+                        document.getElementById('banner-date').innerText = data.date || "Leo";
+                        banner.classList.remove('hidden');
+                    } else {
+                        banner.classList.add('hidden');
+                    }
+                } else {
+                    banner.classList.add('hidden');
+                }
+            });
+
+            // Minutes of Meetings
+            const minutesDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'minutes', 'list');
+            onSnapshot(minutesDocRef, (docSnap) => {
+                const container = document.getElementById('minutes-archive-container');
+                if (docSnap.exists()) {
+                    const list = docSnap.data().data || [];
+                    window.appState.minutes = list;
+                    if (list.length === 0) {
+                        container.innerHTML = `<p class="text-center text-xs text-slate-400 italic">Hakuna vikao vilivyorekodiwa.</p>`;
+                    } else {
+                        container.innerHTML = list.map(m => `
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
+                                <div class="flex items-center justify-between text-[10px] font-bold text-slate-500">
+                                    <span>${m.date}</span>
+                                    <span class="text-msarikie-800 uppercase">Kikao</span>
+                                </div>
+                                <h4 class="text-xs font-black text-slate-900">${m.title}</h4>
+                                <p class="text-[11px] text-slate-600 leading-relaxed">${m.content}</p>
+                            </div>
+                        `).join('');
+                    }
+                } else {
+                    container.innerHTML = `<p class="text-center text-xs text-slate-400 italic">Hakuna vikao vilivyorekodiwa.</p>`;
+                }
+            });
+
+            // Funerals
+            const funeralsDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'funerals', 'current');
+            onSnapshot(funeralsDocRef, (docSnap) => {
+                const container = document.getElementById('funeral-container');
+                const statActive = document.getElementById('stat-active-funerals');
+                
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.active) {
+                        window.appState.funerals = [data];
+                        statActive.innerText = "1";
+                        document.getElementById('contrib-target').innerText = `TZS ${parseInt(data.contributionAmount).toLocaleString()}/=`;
+                        
+                        container.innerHTML = `
+                            <div class="space-y-4">
+                                <div class="border-l-4 border-red-500 pl-3">
+                                    <h3 class="text-xs font-black text-slate-900">${data.memberWhoLost?.toUpperCase()} Amefiwa</h3>
+                                    <p class="text-[11px] text-slate-600 mt-1">Uhusiano: <span class="font-bold text-slate-800">${data.relationship}</span></p>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 text-[11px]">
+                                    <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                        <span class="block text-[8px] text-slate-400 uppercase font-black">Eneo / Maziko</span>
+                                        <span class="font-bold text-slate-700">${data.location || "N/A"}</span>
+                                    </div>
+                                    <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                        <span class="block text-[8px] text-slate-400 uppercase font-black">Tarehe</span>
+                                        <span class="font-bold text-slate-700">${formatDate(data.date)}</span>
+                                    </div>
+                                </div>
+                                <div class="bg-red-50/70 border border-red-100 p-3 rounded-xl flex items-center justify-between">
+                                    <div>
+                                        <span class="block text-[8px] text-red-800 uppercase font-black">Mchango wa Kila Mtu</span>
+                                        <span class="text-sm font-black text-red-900">TZS ${parseInt(data.contributionAmount).toLocaleString()}/=</span>
+                                    </div>
+                                    <button onclick="openPaymentDetailsModal()" class="bg-red-600 hover:bg-red-700 text-white text-[10px] font-black px-3 py-1.5 rounded-lg transition">
+                                        Lipa
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        window.appState.funerals = [];
+                        statActive.innerText = "0";
+                        document.getElementById('contrib-target').innerText = "TZS 0";
+                        container.innerHTML = `
+                            <div class="text-center py-6 text-slate-500 text-xs">
+                                <i class="fa-solid fa-circle-info text-slate-300 text-3xl mb-2"></i>
+                                <p>Kwa sasa hakuna dharura yoyote ya msiba iliyotangazwa.</p>
+                            </div>
+                        `;
+                    }
+                } else {
+                    statActive.innerText = "0";
+                }
+                renderContributionList();
+            });
+
+            // Members
+            const membersDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'members', 'list');
+            onSnapshot(membersDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    window.appState.members = docSnap.data().data || [];
+                }
+                
+                if (window.appState.loggedInProfileMember) {
+                    const currentId = window.appState.loggedInProfileMember.id;
+                    const updatedMe = window.appState.members.find(m => m.id === currentId);
+                    if (updatedMe) {
+                        window.appState.loggedInProfileMember = updatedMe;
+                        renderActiveProfileDetails();
+                    }
+                }
+                updateMemberStatsAndUI();
+            });
+
+            // Group Chats
+            const chatCollRef = collection(db, 'artifacts', appId, 'public', 'data', 'chats');
+            const chatQuery = query(chatCollRef, orderBy('timestamp', 'asc'), limit(100));
+            onSnapshot(chatQuery, (querySnap) => {
+                if (window.appState.chatMode === 'group') {
+                    renderGroupChatUI(querySnap);
+                }
+            });
+
+            // Private Chats
+            const pChatCollRef = collection(db, 'artifacts', appId, 'public', 'data', 'private_chats');
+            const pChatQuery = query(pChatCollRef, orderBy('timestamp', 'asc'));
+            onSnapshot(pChatQuery, (querySnap) => {
+                const msgs = [];
+                querySnap.forEach(d => msgs.push({ id: d.id, ...d.data() }));
+                window.appState.allPrivateChats = msgs;
+                if (window.appState.chatMode === 'private') {
+                    renderPrivateChatUI();
+                }
+            });
+        }
+
+        // Live Meeting Jitsi external execution
+        window.joinActiveLiveMeeting = function() {
+            const displayName = document.getElementById('meeting-display-name').value.trim() || localStorage.getItem('msarikie_chat_user') || 'Mwanachama';
+            const roomName = window.appState.currentMeeting.roomName;
+
+            if (!roomName) {
+                showToast("Hakuna kikao kipya!", false);
+                return;
+            }
+
+            document.getElementById('active-meeting-box').classList.add('hidden');
+            document.getElementById('jitsi-iframe-container').classList.remove('hidden');
+            document.getElementById('jitsi-active-title').innerText = `Kikao: ${window.appState.currentMeeting.subject}`;
+
+            const domain = 'meet.jit.si';
+            const options = {
+                roomName: roomName,
+                width: '100%',
+                height: '100%',
+                parentNode: document.querySelector('#jitsi-meet-player'),
+                userInfo: {
+                    displayName: displayName
+                },
+                configOverwrite: {
+                    startWithAudioMuted: true,
+                    startWithVideoMuted: true
+                }
+            };
+
+            window.appState.jitsiAPI = new JitsiMeetExternalAPI(domain, options);
+        };
+
+        window.hangupCurrentMeeting = function() {
+            if (window.appState.jitsiAPI) {
+                window.appState.jitsiAPI.dispose();
+                window.appState.jitsiAPI = null;
+            }
+            document.getElementById('jitsi-iframe-container').classList.add('hidden');
+            document.getElementById('jitsi-meet-player').innerHTML = '';
+            
+            const data = window.appState.currentMeeting;
+            if (data && data.active) {
+                document.getElementById('active-meeting-box').classList.remove('hidden');
+            } else {
+                document.getElementById('no-active-meeting-box').classList.remove('hidden');
+            }
+        };
+
+        // Group Chat Render
+        function renderGroupChatUI(querySnap) {
+            const container = document.getElementById('chat-messages-container');
+            let messagesHTML = '';
+            const verifiedPhone = (localStorage.getItem('msarikie_chat_phone') || "").trim();
+
+            querySnap.forEach((docSnap) => {
+                const msg = docSnap.data();
+                const msgId = docSnap.id;
+                const msgPhone = (msg.senderPhone || "").trim();
+                const isMyMsg = verifiedPhone !== "" && msgPhone !== "" && verifiedPhone === msgPhone;
+                
+                messagesHTML += `
+                    <div class="flex flex-col ${isMyMsg ? 'items-end' : 'items-start'} max-w-[85%] ${isMyMsg ? 'self-end' : 'self-start'}">
+                        <span class="text-[9px] text-slate-400 font-bold ml-1 mr-1 mb-0.5">${msg.senderName}</span>
+                        <div class="flex items-center space-x-1.5">
+                            ${isMyMsg ? `
+                                <button onclick="window.deleteChatMessage('group', '${msgId}')" class="text-red-500 hover:text-red-700 p-1 text-[11px] transition duration-150" title="Futa ujumbe">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            ` : ''}
+                            <div class="p-2.5 rounded-2xl shadow-sm text-xs whitespace-pre-wrap leading-relaxed" 
+                                 style="${isMyMsg ? 'background-color: #166534; color: #ffffff; border-bottom-right-radius: 0px;' : 'background-color: #e2e8f0; color: #0f172a; border-bottom-left-radius: 0px;'}">
+                                ${msg.text}
+                            </div>
+                        </div>
+                        <span class="text-[8px] text-slate-400 mt-0.5 ml-1 mr-1">${formatTime(msg.timestamp)}</span>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = messagesHTML || `<p class="text-center text-slate-400 text-xs py-10">Hakuna ujumbe kwenye group chat bado.</p>`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Private Chat Render
+        window.renderPrivateChatUI = function() {
+            const container = document.getElementById('chat-messages-container');
+            const receiverPhone = document.getElementById('chat-private-receiver-picker').value;
+            const myPhone = localStorage.getItem('msarikie_chat_phone');
+
+            if (!receiverPhone) {
+                container.innerHTML = `<p class="text-center text-slate-400 text-xs py-10">Chagua mwanachama hapo juu ili kuanza chat ya siri.</p>`;
+                return;
+            }
+
+            const filtered = window.appState.allPrivateChats.filter(m => 
+                (m.senderPhone === myPhone && m.receiverPhone === receiverPhone) ||
+                (m.senderPhone === receiverPhone && m.receiverPhone === myPhone)
+            );
+
+            let messagesHTML = '';
+            filtered.forEach(msg => {
+                const isMyMsg = msg.senderPhone === myPhone;
+                messagesHTML += `
+                    <div class="flex flex-col ${isMyMsg ? 'items-end' : 'items-start'} max-w-[85%] ${isMyMsg ? 'self-end' : 'self-start'}">
+                        <span class="text-[9px] text-slate-400 font-bold ml-1 mr-1 mb-0.5">${msg.senderName}</span>
+                        <div class="flex items-center space-x-1.5">
+                            ${isMyMsg ? `
+                                <button onclick="window.deleteChatMessage('private', '${msg.id}')" class="text-red-500 hover:text-red-700 p-1 text-[11px] transition duration-150" title="Futa">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            ` : ''}
+                            <div class="p-2.5 rounded-2xl shadow-sm text-xs whitespace-pre-wrap leading-relaxed" 
+                                 style="${isMyMsg ? 'background-color: #166534; color: #ffffff; border-bottom-right-radius: 0px;' : 'background-color: #e2e8f0; color: #0f172a; border-bottom-left-radius: 0px;'}">
+                                ${msg.text}
+                            </div>
+                        </div>
+                        <span class="text-[8px] text-slate-400 mt-0.5 ml-1 mr-1">${formatTime(msg.timestamp)}</span>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = messagesHTML || `<p class="text-center text-slate-400 text-xs py-10">Anza kuandika ujumbe wa siri...</p>`;
+            container.scrollTop = container.scrollHeight;
+        };
+
+        // Global Delete Chat Message
+        window.deleteChatMessage = async function(type, messageId) {
+            if (!confirm("Je, una uhakika unataka kufuta ujumbe?")) return;
+            try {
+                const targetColl = type === 'group' ? 'chats' : 'private_chats';
+                const msgDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'targetColl', messageId);
+                // Fix database mapping issue
+                const realDocRef = doc(db, 'artifacts', appId, 'public', 'data', targetColl, messageId);
+                await deleteDoc(realDocRef);
+                showToast("Ujumbe wako umefutwa!", true);
+            } catch (err) {
+                console.error(err);
+                showToast("Ufutaji umeshindikana: " + err.message, false);
+            }
+        };
+
+        window.setChatMode = function(mode) {
+            window.appState.chatMode = mode;
+            const btnGroup = document.getElementById('chat-tab-group');
+            const btnPrivate = document.getElementById('chat-tab-private');
+            const selectorBox = document.getElementById('chat-private-selector-box');
+
+            if (mode === 'group') {
+                btnGroup.className = "py-2.5 border-b-2 border-msarikie-800 text-msarikie-900";
+                btnPrivate.className = "py-2.5 text-slate-500";
+                selectorBox.classList.add('hidden');
+                startDataListeners(); 
+            } else {
+                btnPrivate.className = "py-2.5 border-b-2 border-msarikie-800 text-msarikie-900";
+                btnGroup.className = "py-2.5 text-slate-500";
+                selectorBox.classList.remove('hidden');
+                populatePrivateMembersDropdown();
+                renderPrivateChatUI();
+            }
+        };
+
+        function populatePrivateMembersDropdown() {
+            const picker = document.getElementById('chat-private-receiver-picker');
+            const myPhone = localStorage.getItem('msarikie_chat_phone');
+            const list = window.appState.members;
+
+            const filtered = list.filter(m => m.phone !== myPhone);
+            picker.innerHTML = '<option value="">-- Chagua Mwanachama --</option>' + 
+                filtered.map(m => `<option value="${m.phone}">${m.name} (${m.phone})</option>`).join('');
+        }
+
+        window.startPrivateChatWithMember = function() {
+            renderPrivateChatUI();
+        };
+
+        window.sendChatMessage = async function() {
+            const input = document.getElementById('chat-message-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const name = localStorage.getItem('msarikie_chat_user');
+            const phone = localStorage.getItem('msarikie_chat_phone');
+
+            try {
+                if (window.appState.chatMode === 'group') {
+                    const chatCollRef = collection(db, 'artifacts', appId, 'public', 'data', 'chats');
+                    await addDoc(chatCollRef, {
+                        senderName: name,
+                        senderPhone: phone,
+                        text: text,
+                        timestamp: new Date()
+                    });
+                } else {
+                    const receiverPhone = document.getElementById('chat-private-receiver-picker').value;
+                    if (!receiverPhone) {
+                        showToast("Chagua kwanza mwanachama!", false);
+                        return;
+                    }
+                    const pChatCollRef = collection(db, 'artifacts', appId, 'public', 'data', 'private_chats');
+                    await addDoc(pChatCollRef, {
+                        senderName: name,
+                        senderPhone: phone,
+                        receiverPhone: receiverPhone,
+                        text: text,
+                        timestamp: new Date()
+                    });
+                    renderPrivateChatUI();
+                }
+                input.value = '';
+            } catch (err) {
+                console.error(err);
+                showToast("Ujumbe haukutuma.", false);
+            }
+        };
+
+        // ===================== GEMINI AI INTERACTION LOGIC =====================
+        window.aiChatHistory = [];
+
+        window.clearAiChat = function() {
+            window.aiChatHistory = [];
+            document.getElementById('ai-messages-container').innerHTML = `
+                <div class="bg-amber-50 border border-amber-100 p-3 rounded-2xl text-xs text-slate-800 leading-relaxed max-w-[90%] self-start shadow-sm">
+                    <p class="font-bold text-amber-900 mb-1"><i class="fa-solid fa-robot"></i> AI Msaidizi:</p>
+                    Hujambo! Mimi ni **Msaidizi wa Msarikie (AI)**. Nimesoma katiba yenu yote, taarifa za vikao vyote vilivyopita, matangazo ya Mwenyekiti na viwango vya sasa vya michango. Niulize chochote kuhusu kikundi chetu nitakujibu kwa usahihi!
+                </div>
+            `;
+        };
+
+        window.sendAiMessage = async function() {
+            const input = document.getElementById('ai-chat-input');
+            const queryText = input.value.trim();
+            if (!queryText) return;
+
+            const container = document.getElementById('ai-messages-container');
+            container.innerHTML += `
+                <div class="bg-slate-200 p-3 rounded-2xl text-xs text-slate-800 leading-relaxed max-w-[85%] self-end shadow-sm">
+                    ${queryText}
+                </div>
+            `;
+            container.scrollTop = container.scrollHeight;
+            input.value = '';
+
+            const aiLoadingId = 'ai-loading-' + Date.now();
+            container.innerHTML += `
+                <div id="${aiLoadingId}" class="bg-amber-50 border border-amber-100 p-3 rounded-2xl text-xs text-slate-800 leading-relaxed max-w-[90%] self-start shadow-sm flex items-center space-x-2">
+                    <i class="fa-solid fa-spinner animate-spin text-amber-600"></i>
+                    <span>AI Msaidizi anafikiria na kusoma data...</span>
+                </div>
+            `;
+            container.scrollTop = container.scrollHeight;
+
+            try {
+                const monthlyAmt = window.appState.config?.monthlyFee || "10,000";
+                const regAmt = window.appState.config?.registrationFee || "0";
+                const constText = window.appState.config?.constitution || "Bado haijawekwa na Mwenyekiti.";
+                const activeFun = window.appState.funerals?.[0] ? `Nani amefiwa: ${window.appState.funerals[0].memberWhoLost}, Uhusiano: ${window.appState.funerals[0].relationship}, Tarehe: ${window.appState.funerals[0].date}, Eneo: ${window.appState.funerals[0].location}, Mchango wa msiba kwa kila mtu: TZS ${window.appState.funerals[0].contributionAmount}` : "Hakuna msiba kwa sasa.";
+                const pastMinutes = window.appState.minutes?.map(m => `Kichwa: ${m.title}, Maelezo: ${m.content}, Tarehe: ${m.date}`).join('\n') || "Hakuna kumbukumbu za vikao bado.";
+
+                const systemPrompt = `Wewe ni "Msaidizi wa Msarikie" (AI Assistant), msaidizi mahiri wa kikundi cha Familia ya Msarikie nchini Tanzania. 
+Msaidie mwanachama kwa joto na ukarimu mkubwa katika lugha safi ya Kiswahili ya kijamii.
+Tumia muktadha (Context) ufuatao kujibu maswali yao kwa uaminifu mkubwa. Ikiwa jibu halipo, jibu kwa weledi wa jumla ukiwasihi wawasiliane na viongozi wao.
+
+MUKTADHA WA KIKUNDI CHETU (LEARNED KNOWLEDGE):
+- Ada ya kujiandikisha kujiunga: TZS ${regAmt}/=
+- Ada ya kila mwezi: TZS ${monthlyAmt}/=
+- Katiba na Sheria za Kikundi: ${constText}
+- Dharura ya sasa ya Msiba: ${activeFun}
+- Vikao vilivyopita na Maamuzi yake: 
+${pastMinutes}
+`;
+
+                const apiKey = ""; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                window.aiChatHistory.push({ role: "user", parts: [{ text: queryText }] });
+
+                const payload = {
+                    contents: window.aiChatHistory,
+                    systemInstruction: {
+                        parts: [{ text: systemPrompt }]
+                    }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const aiResponseText = result.candidates?.[0]?.content?.parts?.[0]?.text || "Samahani, sikupokea jibu sahihi toka kwenye mfumo wangu wa akili mnemba.";
+
+                window.aiChatHistory.push({ role: "model", parts: [{ text: aiResponseText }] });
+
+                const loadingEl = document.getElementById(aiLoadingId);
+                if (loadingEl) loadingEl.remove();
+
+                const uniqueResponseId = 'ai-res-' + Date.now();
+                container.innerHTML += `
+                    <div class="bg-amber-50 border border-amber-100 p-3 rounded-2xl text-xs text-slate-800 leading-relaxed max-w-[90%] self-start shadow-sm">
+                        <p class="font-bold text-amber-900 mb-1"><i class="fa-solid fa-robot"></i> AI Msaidizi:</p>
+                        <span id="${uniqueResponseId}"></span>
+                    </div>
+                `;
+                container.scrollTop = container.scrollHeight;
+
+                const responseSpan = document.getElementById(uniqueResponseId);
+                let charIndex = 0;
+                function typeResponse() {
+                    if (charIndex < aiResponseText.length) {
+                        responseSpan.innerHTML += aiResponseText.charAt(charIndex);
+                        charIndex++;
+                        container.scrollTop = container.scrollHeight;
+                        setTimeout(typeResponse, 15); 
+                    }
+                }
+                typeResponse();
+
+            } catch (err) {
+                console.error(err);
+                const loadingEl = document.getElementById(aiLoadingId);
+                if (loadingEl) loadingEl.remove();
+                showToast("AI ameshindwa kufanya kazi.", false);
+            }
+        };
+
+        window.handleAiSubmit = function(e) {
+            if (e.key === 'Enter') {
+                sendAiMessage();
+            }
+        };
+
+        function updatePaymentDetailsDisplay() {
+            document.getElementById('display-pay-mpesa').innerText = window.appState.paymentDetails.mpesa || "Haijawekwa";
+            document.getElementById('display-pay-tigopesa').innerText = window.appState.paymentDetails.tigopesa || "Haijawekwa";
+            document.getElementById('display-pay-airtelmoney').innerText = window.appState.paymentDetails.airtelmoney || "Haijawekwa";
+        }
+
+        function updateMemberStatsAndUI() {
+            const list = window.appState.members;
+            document.getElementById('stat-total-members').innerText = list.length;
+            document.getElementById('directory-count').innerText = list.length;
+            
+            renderDirectoryList();
+            renderContributionList();
+            loadMonthlyFundData(); 
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return "N/A";
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('sw-TZ', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        function formatTime(timestamp) {
+            if (!timestamp) return "";
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            return date.toLocaleTimeString('sw-TZ', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function showToast(message, isSuccess = true) {
+            const toast = document.getElementById('toast-message');
+            const icon = document.getElementById('toast-icon');
+            const text = document.getElementById('toast-text');
+
+            text.innerText = message;
+            if (isSuccess) {
+                icon.className = "fa-solid fa-circle-check text-emerald-400";
+            } else {
+                icon.className = "fa-solid fa-triangle-exclamation text-amber-400";
+            }
+
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+
+            setTimeout(() => {
+                toast.classList.remove('flex');
+                toast.classList.add('hidden');
+            }, 3500);
+        }
+
+        window.switchTab = function(tabName) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('nav button').forEach(el => {
+                el.classList.remove('text-msarikie-600');
+                el.classList.add('text-slate-500');
+            });
+
+            document.getElementById(`tab-content-${tabName}`).classList.remove('hidden');
+            const navBtn = document.getElementById(`nav-tab-${tabName}`);
+            if (navBtn) {
+                navBtn.classList.remove('text-slate-500');
+                navBtn.classList.add('text-msarikie-600');
+            }
+
+            const hero = document.getElementById('hero-area');
+            if (tabName === 'chat' || tabName === 'profile' || tabName === 'ai-bot' || tabName === 'mikutano') {
+                hero.classList.add('hidden');
+                if (tabName === 'chat') checkChatState();
+                if (tabName === 'profile') checkProfileState();
+            } else {
+                hero.classList.remove('hidden');
+                hangupCurrentMeeting();
+            }
+        };
+
+        function checkChatState() {
+            const savedName = localStorage.getItem('msarikie_chat_user');
+            const gate = document.getElementById('chat-verify-gate');
+            const activeArea = document.getElementById('chat-active-area');
+            const logoutBtn = document.getElementById('chat-logout-btn');
+
+            if (savedName) {
+                gate.classList.add('hidden');
+                activeArea.classList.remove('hidden');
+                logoutBtn.classList.remove('hidden');
+                
+                const container = document.getElementById('chat-messages-container');
+                container.scrollTop = container.scrollHeight;
+            } else {
+                gate.classList.remove('hidden');
+                activeArea.classList.add('hidden');
+                logoutBtn.classList.add('hidden');
+            }
+        }
+
+        window.processChatVerification = function() {
+            const enteredPhone = document.getElementById('chat-verify-phone').value.trim();
+            if (!enteredPhone) {
+                showToast("Ingiza namba ya simu!", false);
+                return;
+            }
+
+            const foundMember = window.appState.members.find(m => m.phone.trim() === enteredPhone);
+            if (foundMember) {
+                localStorage.setItem('msarikie_chat_user', foundMember.name);
+                localStorage.setItem('msarikie_chat_phone', foundMember.phone);
+                document.getElementById('chat-verify-phone').value = '';
+                showToast(`Karibu kwenye Chat, ${foundMember.name}!`, true);
+                checkChatState();
+            } else {
+                showToast("Namba haijasajiliwa kwenye daftari la familia!", false);
+            }
+        };
+
+        window.exitChatVerification = function() {
+            localStorage.removeItem('msarikie_chat_user');
+            localStorage.removeItem('msarikie_chat_phone');
+            checkChatState();
+            showToast("Umetoka kwenye Chat.", true);
+        };
+
+        window.handleChatSubmit = function(e) {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        };
+
+        function checkProfileState() {
+            const gate = document.getElementById('profile-gate');
+            const area = document.getElementById('profile-details-area');
+
+            if (window.appState.loggedInProfileMember) {
+                gate.classList.add('hidden');
+                area.classList.remove('hidden');
+                renderActiveProfileDetails();
+            } else {
+                gate.classList.remove('hidden');
+                area.classList.add('hidden');
+            }
+        }
+
+        window.processProfileLogin = async function() {
+            const phone = document.getElementById('profile-login-phone').value.trim();
+            const pin = document.getElementById('profile-login-pin').value.trim();
+
+            if (!phone || !pin) {
+                showToast("Jaza namba na PIN!", false);
+                return;
+            }
+
+            const foundMember = window.appState.members.find(m => m.phone === phone);
+            if (!foundMember) {
+                showToast("Namba yako ya simu haipo kwenye daftari!", false);
+                return;
+            }
+
+            if (!foundMember.personalPin) {
+                try {
+                    foundMember.personalPin = pin;
+                    const membersDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'members', 'list');
+                    await setDoc(membersDocRef, { data: window.appState.members });
+                    showToast("PIN yako ya kwanza imesajiliwa kikamilifu!", true);
+                } catch (err) {
+                    console.error(err);
+                    showToast("Imeshindikana kusajili PIN.", false);
+                    return;
+                }
+            }
+
+            if (foundMember.personalPin === pin) {
+                window.appState.loggedInProfileMember = foundMember;
+                document.getElementById('profile-login-phone').value = '';
+                document.getElementById('profile-login-pin').value = '';
+                checkProfileState();
+                showToast(`Karibu kwenye wasifu wako, ${foundMember.name}`, true);
+            } else {
+                showToast("PIN uliyoingiza si sahihi!", false);
+            }
+        };
+
+        window.logoutProfile = function() {
+            window.appState.loggedInProfileMember = null;
+            checkProfileState();
+            showToast("Umetoka kwenye wasifu wako.", true);
+        };
+
+        function renderActiveProfileDetails() {
+            const me = window.appState.loggedInProfileMember;
+            if (!me) return;
+
+            document.getElementById('profile-user-name').innerText = me.name;
+            document.getElementById('profile-user-phone').innerText = `Simu: ${me.phone}`;
+
+            const imgDisplay = document.getElementById('profile-image-display');
+            const fallback = document.getElementById('profile-image-fallback');
+            if (me.photo) {
+                imgDisplay.src = me.photo;
+                imgDisplay.classList.remove('hidden');
+                fallback.classList.add('hidden');
+            } else {
+                imgDisplay.classList.add('hidden');
+                fallback.classList.remove('hidden');
+            }
+
+            const statusContainer = document.getElementById('profile-payments-status-list');
+            let statusHTML = '';
+
+            const paidReg = me.monthlyFunds?.['Kujiandikisha'] || false;
+            const configReg = window.appState.config?.registrationFee || "0";
+            statusHTML += `
+                <div class="p-3 rounded-xl border flex justify-between items-center ${paidReg ? 'bg-emerald-50 border-emerald-100' : 'bg-red-50 border-red-100'}">
+                    <div>
+                        <span class="block text-[8px] text-slate-400 uppercase font-black">Ada ya Kujiandikisha</span>
+                        <span class="text-xs font-bold text-slate-800">TZS ${parseInt(configReg).toLocaleString()}</span>
+                    </div>
+                    <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${paidReg ? 'bg-emerald-200 text-emerald-800' : 'bg-red-200 text-red-800'}">
+                        ${paidReg ? 'AMELIPA' : 'BADO'}
+                    </span>
+                </div>
+            `;
+
+            const activeFuneral = window.appState.funerals[0];
+            if (activeFuneral) {
+                const paid = me.contributions?.[activeFuneral.id] || false;
+                statusHTML += `
+                    <div class="p-3 rounded-xl border flex justify-between items-center ${paid ? 'bg-emerald-50 border-emerald-100' : 'bg-red-50 border-red-100'}">
+                        <div>
+                            <span class="block text-[8px] text-slate-400 uppercase font-black">Mchango wa Msiba</span>
+                            <span class="text-xs font-bold text-slate-800">${activeFuneral.memberWhoLost} Amefiwa</span>
+                        </div>
+                        <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${paid ? 'bg-emerald-200 text-emerald-800' : 'bg-red-200 text-red-800'}">
+                            ${paid ? 'AMELIPA' : 'BADO'}
+                        </span>
+                    </div>
+                `;
+            } else {
+                statusHTML += `<p class="text-[10px] text-slate-400 italic">Hakuna dharura ya msiba inayoendelea.</p>`;
+            }
+
+            const currentMonth = window.appState.currentMonthSelected;
+            const paidMonth = me.monthlyFunds?.[currentMonth] || false;
+            statusHTML += `
+                <div class="p-3 rounded-xl border flex justify-between items-center ${paidMonth ? 'bg-emerald-50 border-emerald-100' : 'bg-amber-50 border-amber-100'}">
+                    <div>
+                        <span class="block text-[8px] text-slate-400 uppercase font-black">Ada ya Mfuko wa Mwezi</span>
+                        <span class="text-xs font-bold text-slate-800">${currentMonth}</span>
+                    </div>
+                    <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${paidMonth ? 'bg-emerald-200 text-emerald-800' : 'bg-amber-200 text-amber-700'}">
+                        ${paidMonth ? 'AMELIPA' : 'BADO'}
+                    </span>
+                </div>
+            `;
+
+            statusContainer.innerHTML = statusHTML;
+        }
+
+        window.updateMemberPersonalPIN = async function() {
+            const me = window.appState.loggedInProfileMember;
+            if (!me) return;
+
+            const newPin = document.getElementById('profile-new-pin-input').value.trim();
+            if (!newPin || newPin.length < 4) {
+                showToast("Ingiza PIN mpya yenye tarakimu 4!", false);
+                return;
+            }
+
+            try {
+                const updatedMembers = window.appState.members.map(m => {
+                    if (m.id === me.id) {
+                        return { ...m, personalPin: newPin };
+                    }
+                    return m;
+                });
+
+                const membersDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'members', 'list');
+                await setDoc(membersDocRef, { data: updatedMembers });
+
+                document.getElementById('profile-new-pin-input').value = '';
+                showToast("PIN yako ya siri imebadilishwa!", true);
+            } catch (err) {
+                console.error(err);
+                showToast("Imeshindikana kusasisha PIN.", false);
+            }
+        };
+
+        window.triggerProfileImageUpload = function() {
+            document.getElementById('profile-image-file-input').click();
+        };
+
+        window.handleProfileImageSelect = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = 120;
+                    canvas.height = 120;
+                    ctx.drawImage(img, 0, 0, 120, 120);
+
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+                    saveCompressedProfileImage(compressedBase64);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        async function saveCompressedProfileImage(base64Str) {
+            const me = window.appState.loggedInProfileMember;
+            if (!me) return;
+
+            try {
+                const updatedMembers = window.appState.members.map(m => {
+                    if (m.id === me.id) {
+                        return { ...m, photo: base64Str };
+                    }
+                    return m;
+                });
+
+                const membersDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'members', 'list');
+                await setDoc(membersDocRef, { data: updatedMembers });
+                showToast("Picha ya wasifu imehifadhiwa!", true);
+            } catch (err) {
+                console.error(err);
+                showToast("Imeshindikana kuhifadhi picha.", false);
+            }
+        }
+
+        window.openReceiptModal = function(mName, mType, amountStr) {
+            document.getElementById('receipt-name').innerText = mName;
+            document.getElementById('receipt-type').innerText = mType;
+            document.getElementById('receipt-amount').innerText = amountStr;
+            
+            const randomRef = 'TX-' + Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('receipt-tx-id').innerText = randomRef;
+
+            document.getElementById('modal-receipt').classList.remove('hidden');
+        };
+
+        window.closeReceiptModal = function() {
+            document.getElementById('modal-receipt').classList.add('hidden');
+        };
+
+        window.loadMonthlyFundData = function() {
+            const month = document.getElementById('monthly-picker').value;
+            window.appState.currentMonthSelected = month;
+
+            const container = document.getElementById('monthly-list-container');
+            const list = window.appState.members;
+
+            if (list.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs py-4 text-slate-400">Hakuna wanachama bado.</p>`;
+                document.getElementById('monthly-stats-count').innerText = "0 / 0";
+                return;
+            }
+
+            let paidCount = 0;
+            const sortedList = [...list].sort((a, b) => a.name.localeCompare(b.name));
+
+            const defaultFee = window.appState.config?.monthlyFee || "10000";
+            const regFee = window.appState.config?.registrationFee || "0";
+            const actualFee = month === 'Kujiandikisha' ? regFee : defaultFee;
+
+            container.innerHTML = sortedList.map(m => {
+                const isPaid = m.monthlyFunds?.[month] || false;
+                if (isPaid) paidCount++;
+
+                return `
+                    <div class="py-2.5 flex items-center justify-between animate-fade-in">
+                        <span class="text-xs font-semibold ${isPaid ? 'text-slate-800' : 'text-slate-500'}">${m.name}</span>
+                        <div>
+                            ${isPaid ? 
+                                `<button onclick="openReceiptModal('${m.name}', '${month === 'Kujiandikisha' ? 'Ada ya Kujiandikisha' : 'Ada ya Mfuko - ' + month}', 'TZS ${parseInt(actualFee).toLocaleString()}/=')" class="bg-emerald-100 text-emerald-800 font-bold text-[8px] px-2 py-0.5 rounded-full hover:bg-emerald-200 transition"><i class="fa-solid fa-receipt mr-1"></i> AMESHALIPA</button>` : 
+                                `<span class="bg-amber-100 text-amberCustom-600 font-bold text-[8px] px-2 py-0.5 rounded-full"><i class="fa-solid fa-hourglass-start mr-1"></i> BADO</span>`
+                            }
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('monthly-stats-count').innerText = `${paidCount} / ${list.length}`;
+        };
+
+        window.renderDirectoryList = function() {
+            const container = document.getElementById('directory-list-container');
+            const list = window.appState.members;
+
+            if (list.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs py-4 text-slate-400">Daftari ni tupu.</p>`;
+                return;
+            }
+
+            const sortedList = [...list].sort((a, b) => a.name.localeCompare(b.name));
+
+            container.innerHTML = sortedList.map(member => `
+                <div class="py-3 flex items-center justify-between directory-item animate-fade-in" data-name="${member.name.toLowerCase()}">
+                    <div class="flex items-center space-x-3">
+                        ${member.photo ? `
+                            <img src="${member.photo}" class="h-8 w-8 rounded-full object-cover border border-slate-200">
+                        ` : `
+                            <div class="bg-msarikie-100 text-msarikie-800 font-bold text-xs h-8 w-8 rounded-full flex items-center justify-center">
+                                ${member.name.charAt(0)}
+                            </div>
+                        `}
+                        <div>
+                            <span class="block text-xs font-bold text-slate-800">${member.name}</span>
+                            <span class="block text-[10px] text-slate-400 font-semibold"><i class="fa-solid fa-phone mr-1"></i> ${member.phone}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="startPrivateDirectChat('${member.phone}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 p-2 rounded-lg transition text-xs border border-emerald-150" title="Chat ya Siri">
+                            <i class="fa-solid fa-comment-sms"></i>
+                        </button>
+                        <a href="tel:${member.phone}" class="bg-slate-50 hover:bg-slate-100 text-slate-600 p-2 rounded-lg transition text-xs border border-slate-150">
+                            <i class="fa-solid fa-phone"></i>
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        window.startPrivateDirectChat = function(phone) {
+            const myPhone = localStorage.getItem('msarikie_chat_phone');
+            if (!myPhone) {
+                switchTab('chat');
+                showToast("Thibitisha kwanza namba yako ili kuchat!", false);
+                return;
+            }
+            switchTab('chat');
+            setChatMode('private');
+            document.getElementById('chat-private-receiver-picker').value = phone;
+            renderPrivateChatUI();
+        };
+
+        window.renderContributionList = function() {
+            const container = document.getElementById('contrib-list-container');
+            const list = window.appState.members;
+            const activeFuneral = window.appState.funerals[0];
+
+            if (!activeFuneral) {
+                container.innerHTML = `<p class="text-center text-xs py-4 text-slate-400">Hakuna msiba uliotangazwa.</p>`;
+                document.getElementById('contrib-total-collected').innerText = "TZS 0";
+                return;
+            }
+
+            const funeralId = activeFuneral.id;
+            let totalPaidAmount = 0;
+            const contributionPerPerson = parseInt(activeFuneral.contributionAmount) || 0;
+
+            const sortedList = [...list].sort((a, b) => {
+                const aPaid = a.contributions?.[funeralId] || false;
+                const bPaid = b.contributions?.[funeralId] || false;
+                if (aPaid === bPaid) return a.name.localeCompare(b.name);
+                return aPaid ? -1 : 1;
+            });
+
+            container.innerHTML = sortedList.map(member => {
+                const paid = member.contributions?.[funeralId] || false;
+                if (paid) totalPaidAmount += contributionPerPerson;
+
+                return `
+                    <div class="py-3 flex items-center justify-between contrib-item animate-fade-in" data-name="${member.name.toLowerCase()}">
+                        <div class="flex items-center space-x-2">
+                            <span class="h-1.5 w-1.5 rounded-full ${paid ? 'bg-emerald-500' : 'bg-amber-500'}"></span>
+                            <span class="text-xs font-semibold ${paid ? 'text-slate-800' : 'text-slate-500'}">${member.name}</span>
+                        </div>
+                        <div>
+                            ${paid ? 
+                                `<button onclick="openReceiptModal('${member.name}', 'Mchango wa Msiba', 'TZS ${contributionPerPerson.toLocaleString()}/=')" class="bg-emerald-100 text-emerald-800 font-bold text-[8px] px-2.5 py-1 rounded-full hover:bg-emerald-200 transition"><i class="fa-solid fa-receipt mr-1"></i> AMESHALIPA</button>` : 
+                                `<span class="bg-amber-100 text-amberCustom-600 font-bold text-[8px] px-2.5 py-1 rounded-full"><i class="fa-solid fa-hourglass-start mr-1"></i> BADO</span>`
+                            }
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('contrib-total-collected').innerText = `TZS ${totalPaidAmount.toLocaleString()}/=`;
+            document.getElementById('stat-total-funds').innerText = `TZS ${totalPaidAmount.toLocaleString()}/=`;
+        };
+
+        window.openPaymentDetailsModal = function() {
+            document.getElementById('modal-payments').classList.remove('hidden');
+        };
+
+        window.closePaymentDetailsModal = function() {
+            document.getElementById('modal-payments').classList.add('hidden');
+        };
+
+        window.copyPaymentNumber = function(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            const match = text.match(/(\d{10})/);
+            const numToCopy = match ? match[1] : text;
+            
+            const tempInput = document.createElement("input");
+            tempInput.value = numToCopy;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            
+            showToast(`Namba ${numToCopy} imesafirishwa!`, true);
+        };
+
+        window.filterDirectoryList = function() {
+            const query = document.getElementById('dir-search-input').value.toLowerCase();
+            document.querySelectorAll('.directory-item').forEach(item => {
+                const name = item.getAttribute('data-name');
+                if (name.includes(query)) {
+                    item.classList.remove('hidden');
+                    item.classList.add('flex');
+                } else {
+                    item.classList.remove('flex');
+                    item.classList.add('hidden');
+                }
+            });
+        };
+
+        window.filterContributionList = function() {
+            const query = document.getElementById('contrib-search-input').value.toLowerCase();
+            document.querySelectorAll('.contrib-item').forEach(item => {
+                const name = item.getAttribute('data-name');
+                if (name.includes(query)) {
+                    item.classList.remove('hidden');
+                    item.classList.add('flex');
+                } else {
+                    item.classList.remove('flex');
+                    item.classList.add('hidden');
+                }
+            });
+        };
+
+        window.onload = async function() {
+            try {
+                await signInAnonymously(auth);
+                startDataListeners();
+            } catch (err) {
+                console.error("Auth Error", err);
+            }
+        };
+    </script>
+</body>
+</html>
